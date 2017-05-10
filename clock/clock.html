@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #clock{
+            position: absolute;
+            top:0;
+            left:0;
+            right:0;
+            bottom:0;
+            margin:auto;
+        }
+
+    </style>
+</head>
+<body>
+<canvas id="clock" width="200" height="200"></canvas>
+<script>
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function(fn) {
+            setTimeout(fn, 17);
+        };
+    }
+    var clock=(function(){
+        var canvas=document.getElementById('clock');
+        var context=canvas.getContext('2d');
+        var w=canvas.width;
+        var h=canvas.height;
+        var r=w/2;
+        context.translate(r,r);
+        function drawBackground(){
+            context.strokeStyle="#000000";
+            context.fillStyle="#000000";
+            context.beginPath();
+            context.lineWidth=10;
+            context.arc(0,0,r-5,0,2*Math.PI,false);
+            context.closePath();
+            context.stroke();
+            var hourNumbers=[3,4,5,6,7,8,9,10,11,12,1,2];
+            hourNumbers.forEach(function(number,i){
+                var rad=2*Math.PI/12*i;
+                var x=Math.cos(rad)*(r-30);
+                var y=Math.sin(rad)*(r-30);
+                context.font="18px Arial";
+                context.textAlign="center";
+                context.textBaseline="middle";
+                context.fillText(number,x,y);
+            });
+            for(var i=0;i<60;i++){
+                var rad=2*Math.PI/60*i;
+                var x=Math.cos(rad)*(r-18);
+                var y=Math.sin(rad)*(r-18);
+                context.beginPath();
+                context.arc(x,y,2,0,2*Math.PI,false);
+                if(i%5==0){
+                    context.fillStyle="#000000";
+                }else{
+                    context.fillStyle="#ccc";
+                }
+                context.fill();
+            }
+        }
+        function drawHour(hour,minute){
+            context.save();
+            var rad=2*Math.PI/12*(hour-3);
+            var mrad=2*Math.PI/12/60*(minute-15);
+            mrad=Math.abs(mrad);
+            var x=Math.cos(rad+mrad)*(r-40);
+            var y=Math.sin(rad+mrad)*(r-40);
+            context.beginPath();
+            context.moveTo(0,0);
+            context.lineTo(x,y);
+            context.lineWidth=6;
+            context.lineCap="round";
+            context.stroke();
+            context.restore();
+        }
+        function drawMinute(minute){
+            context.save();
+            var rad=2*Math.PI/60*(minute-15);
+            var x=Math.cos(rad)*(r-30);
+            var y=Math.sin(rad)*(r-30);
+            context.beginPath();
+            context.moveTo(0,0);
+            context.lineTo(x,y);
+            context.lineWidth=4;
+            context.lineCap="round";
+            context.stroke();
+            context.restore();
+        }
+        function drawSecond(second){
+            context.save();
+            context.strokeStyle="#c14543";
+            var rad=2*Math.PI/60*(second-15);
+            var x=Math.cos(rad)*(r-18);
+            var y=Math.sin(rad)*(r-18);
+            context.beginPath();
+            context.moveTo(0,0);
+            context.lineTo(x,y);
+            context.lineWidth=2;
+            context.lineCap="round";
+            context.stroke();
+            context.restore();
+        }
+        function drawDot(){
+            context.fillStyle="#fff";
+            context.lineWidth=1;
+            context.beginPath();
+            context.arc(0,0,3,0,2*Math.PI,false);
+            context.closePath();
+            context.fill();
+        }
+        function render(){
+            context.clearRect(-r, -r, w, h);
+            drawBackground();
+            drawHour(new Date().getHours(),new Date().getMinutes());
+            drawMinute(new Date().getMinutes());
+            drawSecond(new Date().getSeconds());
+            drawDot();
+            requestAnimationFrame(render);
+        }
+        render();
+    })();
+</script>
+</body>
+</html>

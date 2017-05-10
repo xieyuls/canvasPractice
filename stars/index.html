@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html,body{
+            width: 100%;
+            height:100%;
+        }
+        .container {
+            position: relative;
+            height: 100%;
+            background-color: #000;
+        }
+        canvas {
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="container" class="container">
+    <canvas id="star"></canvas>
+    <canvas id="starSign"></canvas>
+</div>
+<script>
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function(fn) {
+            setTimeout(fn, 17);
+        };
+    }
+    var stars=(function(){
+        var container=document.getElementById('container');
+        var canvas=document.getElementById('star');
+        canvas.width = window.innerWidth-20;
+        canvas.height = window.innerHeight-20;
+        window.addEventListener("resize", resizeCanvas, false);
+        function resizeCanvas() {
+            canvas.width = window.innerWidth-20;
+            canvas.height = window.innerHeight-20;
+        }
+
+        if(canvas.getContext){
+            var context=canvas.getContext('2d');
+            // 存储实例
+            var store = {};
+
+            // 实例方法
+            var Ball = function () {
+                this.x = Math.random()*(canvas.width-20);
+                this.y= Math.random()*(canvas.height-20);
+                this.opacity=Math.random();
+                this.speed=Math.random()*0.1;
+                this.radius=Math.random()*3;
+                this.move_flag=1;
+                this.opacity_flag=1;
+                this.draw = function () {
+                    // 根据此时x位置重新绘制圆圈圈
+                    // ...
+                    context.fillStyle="rgba(255,255,255,"+this.opacity+")";
+                    context.strokeStyle="#ffffff";
+                    context.beginPath();
+//                context.fillRect(this.x,this.y,this.width,this.height);
+                    context.arc(this.x,this.y,this.radius,0,2*Math.PI,false);
+                    context.fill();
+                    context.closePath();
+                };
+            };
+
+            // 假设有300个星星
+            for(var i=0;i<300;i++) store[i] = new Ball();
+
+            // 绘制画布上所有的星星的方法
+            var draw = function () {
+                // 位置变化
+                for(var i=0;i<300;i++){
+                    //判断圆圈是否到达画图的边界，如果到达了边界则调头向反方向走
+                    if(store[i].x>=canvas.width-20) store[i].move_flag=0;
+                    if(store[i].x<=0) store[i].move_flag=1;
+                    if(store[i].x<canvas.width-20&&store[i].move_flag==1) {
+                        store[i].x=store[i].x+store[i].speed;
+                    }
+                    else if(store[i].x>0&&store[i].move_flag==0) store[i].x=store[i].x-store[i].speed;
+                    //进行圆圈透明度设置，模拟星空闪烁的效果
+                    if(store[i].opacity>=1) store[i].opacity_flag=0;
+                    if(store[i].opacity<=0) store[i].opacity_flag=1;
+                    if(store[i].opacity<1&&store[i].opacity_flag==1) store[i].opacity=store[i].opacity+0.01;
+                    else store[i].opacity=store[i].opacity-0.01;
+                    // 根据新位置绘制圆圈圈
+                    store[i].draw();
+                }
+
+            };
+
+            // 画布渲染
+            var render = function () {
+                // 清除画布
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                // 绘制画布上所有的圆圈圈
+                draw();
+                // 继续渲染
+                requestAnimationFrame(render);
+            };
+            render();
+        }
+    })();
+    var starSign=(function(){
+        var container=document.getElementById('container');
+        var canvas=document.getElementById('starSign');
+        canvas.width = window.innerWidth-20;
+        canvas.height = window.innerHeight-20;
+        window.addEventListener("resize", resizeCanvas, false);
+        function resizeCanvas() {
+            canvas.width = window.innerWidth-20;
+            canvas.height = window.innerHeight-20;
+        }
+
+        if(canvas.getContext){
+            var context=canvas.getContext('2d');
+            var store = {};
+            var starSign=function () {
+                this.a=Math.random()*(canvas.width-20);
+                this.b=Math.random()*(canvas.width-20);
+                this.r=5;
+                this.angle=[0,Math.PI * 2 / 3,Math.PI * 2 / -3,Math.PI / 3,Math.PI / -3,Math.PI];
+                this.arrPos= [
+                    [this.a + this.r * Math.cos(this.angle[0]), this.b + this.r * Math.sin(this.angle[0])],
+                    [this.a + this.r * Math.cos(this.angle[1]), this.b + this.r * Math.sin(this.angle[1])],
+                    [this.a + this.r * Math.cos(this.angle[2]), this.b + this.r * Math.sin(this.angle[2])],
+                    [this.a + this.r * Math.cos(this.angle[3]), this.b + this.r * Math.sin(this.angle[3])],
+                    [this.a + this.r * Math.cos(this.angle[4]), this.b + this.r * Math.sin(this.angle[4])],
+                    [this.a + this.r * Math.cos(this.angle[5]), this.b + this.r * Math.sin(this.angle[5])]
+                ];
+                this.draw=function () {
+                    context.strokeStyle="#ffffff";
+                    context.beginPath();
+                    context.moveTo(this.arrPos[0][0], this.arrPos[0][1]);
+                    context.lineTo(this.arrPos[1][0], this.arrPos[1][1]);
+                    context.lineTo(this.arrPos[2][0], this.arrPos[2][1]);
+                    context.closePath();
+                    context.fillStyle = '#fff';
+                    context.fill();
+
+                    context.beginPath();
+                    context.moveTo(this.arrPos[3][0], this.arrPos[3][1]);
+                    context.lineTo(this.arrPos[4][0], this.arrPos[4][1]);
+                    context.lineTo(this.arrPos[5][0], this.arrPos[5][1]);
+                    context.closePath();
+                    context.fillStyle = '#fff';
+                    context.fill();
+                }
+            };
+            for(var i=0;i<100;i++){
+               store[i]=new starSign();
+            }
+
+            var draw = function () {
+                for(var i=0;i<100;i++){
+                    if(store[i].a>=canvas.width+100) store[i].a=-2*store[i].r;
+                    else store[i].a++;
+                    for(var j=0;j<6;j++){
+                        store[i].angle[j]+=Math.PI / 256;
+                        store[i].arrPos[j]=[store[i].a + store[i].r * Math.cos(store[i].angle[j]), store[i].b + store[i].r * Math.sin(store[i].angle[j])];
+                    }
+                    store[i].draw();
+                }
+            };
+
+            // 画布渲染
+            var render = function () {
+                // 清除画布
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                // 绘制画布上所有的圆圈圈
+                draw();
+                // 继续渲染
+                requestAnimationFrame(render);
+            };
+            render();
+        }
+    })();
+
+
+</script>
+</body>
+</html>
